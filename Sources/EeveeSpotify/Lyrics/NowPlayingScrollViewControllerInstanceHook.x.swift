@@ -10,7 +10,9 @@ var npvScrollViewController: NPVScrollViewController?
 
 class LegacyNowPlayingPlatformSwiftServiceImplementationHook: ClassHook<NSObject> {
     typealias Group = IOS14PremiumPatchingGroup
-    static let targetName = "NowPlaying_PlatformImpl.NowPlayingPlatformSwiftServiceImplementation"
+    static let targetName = EeveeSpotify.hookTarget == .v91
+        ? "UIView" // Dummy target for 9.1.6
+        : "NowPlaying_PlatformImpl.NowPlayingPlatformSwiftServiceImplementation"
     
     func provideStatefulPlayer() -> StatefulPlayerImplementation {
         statefulPlayer = orig.provideStatefulPlayer()
@@ -20,7 +22,9 @@ class LegacyNowPlayingPlatformSwiftServiceImplementationHook: ClassHook<NSObject
 
 class NowPlayingPlatformSwiftServiceImplementationHook: ClassHook<NSObject> {
     typealias Group = NonIOS14PremiumPatchingGroup
-    static let targetName = "NowPlaying_PlatformImpl.NowPlayingPlatformSwiftServiceImplementation"
+    static let targetName = EeveeSpotify.hookTarget == .v91
+        ? "UIView" // Dummy target for 9.1.6
+        : "NowPlaying_PlatformImpl.NowPlayingPlatformSwiftServiceImplementation"
     
     func provideStatefulPlayerWithFeatureIdentifier(_ identifier: NSString) -> StatefulPlayerImplementation {
         statefulPlayer = orig.provideStatefulPlayerWithFeatureIdentifier(identifier)
@@ -30,7 +34,9 @@ class NowPlayingPlatformSwiftServiceImplementationHook: ClassHook<NSObject> {
 
 class NowPlayingScrollPrivateServiceImplementationHook: ClassHook<NSObject> {
     typealias Group = BaseLyricsGroup
-    static let targetName = "NowPlaying_ScrollImpl.NowPlayingScrollPrivateServiceImplementation"
+    static let targetName = EeveeSpotify.hookTarget == .v91
+        ? "UIView" // Dummy target for 9.1.6
+        : "NowPlaying_ScrollImpl.NowPlayingScrollPrivateServiceImplementation"
     
     func provideScrollViewControllerWithDependencies(_ dependencies: NSObject) -> UIViewController {
         let scrollViewController = orig.provideScrollViewControllerWithDependencies(dependencies)

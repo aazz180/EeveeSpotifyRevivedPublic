@@ -5,9 +5,11 @@ private var shouldOverrideLocalTrackURI = false
 
 class SPTPlayerTrackHook: ClassHook<NSObject> {
     typealias Group = BaseLyricsGroup
-    static let targetName = EeveeSpotify.hookTarget == .latest
-        ? "SPTPlayerTrackImplementation"
-        : "SPTPlayerTrack"
+    static let targetName = EeveeSpotify.hookTarget == .v91
+        ? "UIView" // Dummy target for 9.1.6 (lyrics not supported)
+        : (EeveeSpotify.hookTarget == .latest
+            ? "SPTPlayerTrackImplementation"
+            : "SPTPlayerTrack")
 
     func metadata() -> [String: String] {
         var meta = orig.metadata()
@@ -30,7 +32,9 @@ class SPTPlayerTrackHook: ClassHook<NSObject> {
 
 class LyricsScrollProviderHook: ClassHook<NSObject> {
     typealias Group = BaseLyricsGroup
-    static var targetName = HookTargetNameHelper.lyricsScrollProvider
+    static var targetName = EeveeSpotify.hookTarget == .v91
+        ? "UIView" // Dummy target for 9.1.6
+        : HookTargetNameHelper.lyricsScrollProvider
     
     func isEnabledForTrack(_ track: SPTPlayerTrack) -> Bool {
         return true
@@ -39,7 +43,9 @@ class LyricsScrollProviderHook: ClassHook<NSObject> {
 
 class NPVScrollViewControllerHook: ClassHook<NSObject> {
     typealias Group = ModernLyricsGroup
-    static var targetName = "NowPlaying_ScrollImpl.NPVScrollViewController"
+    static var targetName = EeveeSpotify.hookTarget == .v91
+        ? "UIView" // Dummy target for 9.1.6
+        : "NowPlaying_ScrollImpl.NPVScrollViewController"
 
     func viewWillAppear(_ animated: Bool) {
         shouldOverrideLocalTrackURI = true
@@ -54,7 +60,9 @@ class NPVScrollViewControllerHook: ClassHook<NSObject> {
 
 class NowPlayingScrollViewControllerHook: ClassHook<NSObject> {
     typealias Group = LegacyLyricsGroup
-    static var targetName = "NowPlaying_ScrollImpl.NowPlayingScrollViewController"
+    static var targetName = EeveeSpotify.hookTarget == .v91
+        ? "UIView" // Dummy target for 9.1.6
+        : "NowPlaying_ScrollImpl.NowPlayingScrollViewController"
     
     func nowPlayingScrollViewModelWithDidLoadComponentsFor(
         _ track: SPTPlayerTrack,

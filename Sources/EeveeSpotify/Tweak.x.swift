@@ -59,7 +59,7 @@ func activatePremiumPatchingGroup() {
 }
 
 struct EeveeSpotify: Tweak {
-    static let version = "6.2.8"
+    static let version = "6.2.9"
     
     static var hookTarget: VersionHookTarget {
         let version = Bundle.main.infoDictionary!["CFBundleShortVersionString"] as! String
@@ -108,20 +108,25 @@ struct EeveeSpotify: Tweak {
             }
             
             if UserDefaults.lyricsSource.isReplacingLyrics {
-                NSLog("[EeveeSpotify] Activating lyrics hooks")
-                writeDebugLog("Activating lyrics hooks")
-                BaseLyricsGroup().activate()
-                writeDebugLog("Base lyrics hooks activated successfully")
-                
-                if EeveeSpotify.hookTarget == .latest {
-                    writeDebugLog("Activating modern lyrics hooks")
-                    ModernLyricsGroup().activate()
-                    writeDebugLog("Modern lyrics hooks activated successfully")
-                }
-                else {
-                    writeDebugLog("Activating legacy lyrics hooks")
-                    LegacyLyricsGroup().activate()
-                    writeDebugLog("Legacy lyrics hooks activated successfully")
+                if EeveeSpotify.hookTarget == .v91 {
+                    NSLog("[EeveeSpotify] Lyrics not supported for Spotify 9.1.x")
+                    writeDebugLog("Lyrics not supported for 9.1.x - skipping")
+                } else {
+                    NSLog("[EeveeSpotify] Activating lyrics hooks")
+                    writeDebugLog("Activating lyrics hooks")
+                    BaseLyricsGroup().activate()
+                    writeDebugLog("Base lyrics hooks activated successfully")
+                    
+                    if EeveeSpotify.hookTarget == .latest {
+                        writeDebugLog("Activating modern lyrics hooks")
+                        ModernLyricsGroup().activate()
+                        writeDebugLog("Modern lyrics hooks activated successfully")
+                    }
+                    else {
+                        writeDebugLog("Activating legacy lyrics hooks")
+                        LegacyLyricsGroup().activate()
+                        writeDebugLog("Legacy lyrics hooks activated successfully")
+                    }
                 }
             }
             
