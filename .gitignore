@@ -13,3 +13,11 @@ packages/
 .DS_Store
 .vscode/
 .ipa
+# Ignore built IPA files and large binary folders (keep them locally, don't push)
+*.ipa
+"Decrypted IPA/"
+"Tweaked IPA/"
+Debs/
+
+# Local Xcode and build artifacts
+*.xcuserstate
