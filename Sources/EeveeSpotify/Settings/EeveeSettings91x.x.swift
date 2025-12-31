@@ -2,22 +2,19 @@ import Orion
 import SwiftUI
 import UIKit
 
-// Settings integration for 9.1.x - uses triple-tap on status bar area to show version info
+// Settings integration for 9.1.x - adds info button to settings screen
 struct V91SettingsIntegrationGroup: HookGroup { }
 
-// Helper class to handle gesture recognition (not a hook, just a regular class)
-class TripleTapGestureHandler: NSObject {
-    @objc func handleTripleTap(_ gesture: UITapGestureRecognizer) {
-        guard let window = gesture.view as? UIWindow else { return }
-        
-        let tapLocation = gesture.location(in: window)
-        
-        // Only trigger if tapped in the top 60 points (status bar area)
-        guard tapLocation.y < 60 else { return }
+// Helper class to handle button tap (not a hook, just a regular class)
+class VersionInfoButtonHandler: NSObject {
+    @objc func showVersionInfo() {
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first,
+              var topController = window.rootViewController else {
+            return
+        }
         
         // Find the top-most view controller
-        guard var topController = window.rootViewController else { return }
-        
         while let presentedViewController = topController.presentedViewController {
             topController = presentedViewController
         }
@@ -32,8 +29,6 @@ class TripleTapGestureHandler: NSObject {
             • Premium patching: ✓ Active
             • Lyrics: ✗ Not available
             • Full settings: ✗ Not available
-            
-            💡 Triple-tap the top of the screen to see this anytime!
             """,
             preferredStyle: .alert
         )
@@ -48,29 +43,35 @@ class TripleTapGestureHandler: NSObject {
         
         topController.present(alert, animated: true)
         
-        NSLog("[EeveeSpotify] Version info alert presented")
+        NSLog("[EeveeSpotify] Version info alert presented from settings")
     }
 }
 
-// Hook UIWindow to add triple-tap gesture
-class UIWindowTripleTapHook: ClassHook<UIWindow> {
+// Hook the root settings view controller to add our button
+class SPTFeatureSettingsRootViewControllerHook: ClassHook<UIViewController> {
     typealias Group = V91SettingsIntegrationGroup
+    static let targetName = "SPTFeatureSettingsRootViewController"
     
-    static var hasSetupGesture = false
-    static var gestureHandler = TripleTapGestureHandler()
+    static var buttonHandler = VersionInfoButtonHandler()
+    static var hasAddedButton = false
     
-    func didMoveToSuperview() {
-        orig.didMoveToSuperview()
+    func viewDidLoad() {
+        orig.viewDidLoad()
         
-        // Only setup once
-        guard !Self.hasSetupGesture, target.superview != nil else { return }
-        Self.hasSetupGesture = true
+        // Only add button once
+        guard !Self.hasAddedButton else { return }
+        Self.hasAddedButton = true
         
-        // Add a triple-tap gesture recognizer to the window
-        let tripleTap = UITapGestureRecognizer(target: Self.gestureHandler, action: #selector(TripleTapGestureHandler.handleTripleTap(_:)))
-        tripleTap.numberOfTapsRequired = 3
-        target.addGestureRecognizer(tripleTap)
+        // Create info button in navigation bar
+        let infoButton = UIBarButtonItem(
+            image: UIImage(systemName: "info.circle"),
+            style: .plain,
+            target: Self.buttonHandler,
+            action: #selector(VersionInfoButtonHandler.showVersionInfo)
+        )
         
-        NSLog("[EeveeSpotify] Triple-tap gesture added to UIWindow for version info")
+        target.navigationItem.rightBarButtonItem = infoButton
+        
+        NSLog("[EeveeSpotify] Info button added to settings navigation bar")
     }
 }
