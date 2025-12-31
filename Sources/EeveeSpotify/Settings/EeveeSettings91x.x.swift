@@ -58,9 +58,16 @@ class SPTFeatureSettingsRootViewControllerHook: ClassHook<UIViewController> {
     func viewDidLoad() {
         orig.viewDidLoad()
         
+        NSLog("[EeveeSpotify] SPTFeatureSettingsRootViewController viewDidLoad called!")
+        
         // Only add button once
-        guard !Self.hasAddedButton else { return }
+        guard !Self.hasAddedButton else {
+            NSLog("[EeveeSpotify] Button already added, skipping")
+            return
+        }
         Self.hasAddedButton = true
+        
+        NSLog("[EeveeSpotify] Creating info button...")
         
         // Create info button in navigation bar
         let infoButton = UIBarButtonItem(
@@ -70,8 +77,9 @@ class SPTFeatureSettingsRootViewControllerHook: ClassHook<UIViewController> {
             action: #selector(VersionInfoButtonHandler.showVersionInfo)
         )
         
+        NSLog("[EeveeSpotify] Setting right bar button item...")
         target.navigationItem.rightBarButtonItem = infoButton
         
-        NSLog("[EeveeSpotify] Info button added to settings navigation bar")
+        NSLog("[EeveeSpotify] Info button added! Current navigationItem: \(target.navigationItem)")
     }
 }
